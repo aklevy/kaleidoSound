@@ -18,13 +18,14 @@
 #include "Network/Protocol/Minuit.h"
 
 #include "parameter.hpp"
+#include "colorAmbience.hpp"
 
 class Shapes
 {
 public:
     Shapes() = delete; //forbids default constructor
 
-    Shapes(std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh);
+    Shapes(std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
     ~Shapes();
 
     void    update();
@@ -36,20 +37,24 @@ public:
 
 private:
     // Minuit parent Node
-    std::shared_ptr<Node> _parentNode;
+    std::shared_ptr<Node>           _parentNode;
 
     // Shape type name
-    std::string         _shapeType;
+    std::string                     _shapeType;
 
     // Parameter group to be exposed in ofApp's gui
-    ofParameterGroup    _paramGroup;
+    ofParameterGroup                _paramGroup;
     // Shapes number
-    Parameter<int>      _nbShapes;
+    Parameter<int>                  _nbShapes;
 
     // Shape type
-    ofMesh              _mesh;
-    vector<ofVec3f>     _vecPos;
-    vector<ofColor>     _vecCol;
+    ofMesh                          _mesh;
+    vector<ofVec3f>                 _vecPos;
+
+    // Color Ambience
+    ColorAmbience                   _colorAmbi;
+    Parameter<int>                  _colorWarmCool;
+    //vector<ofColor>     _vecCol;
 
     bool                _bDraw;
 };

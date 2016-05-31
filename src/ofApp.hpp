@@ -18,7 +18,7 @@ public:
     void setup();
     void setupGui();
 
-       void update();
+    void update();
     void draw();
 
     void keyPressed(int key);

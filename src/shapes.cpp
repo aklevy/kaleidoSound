@@ -1,7 +1,7 @@
 #include "shapes.hpp"
 
 
-Shapes::Shapes(std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh)
+Shapes::Shapes(std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh, int ambiType)
     :_parentNode(parentNode),
       _shapeType(typeName),
       _mesh(mesh)
@@ -24,8 +24,22 @@ Shapes::Shapes(std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh)
     for (unsigned i = 0; i <  _nbShapes; ++i)
     {
         _vecPos.push_back(ofVec3f(ofRandom(-300, 300), ofRandom(-300, 300), ofRandom(-300, 300)));
-        _vecCol.push_back(ofColor::fromHsb(255 * i / (float) _nbShapes, 255, 255, 255));
+       // _vecCol.push_back(ofColor::fromHsb(255 * i / (float) _nbShapes, 255, 255, 255));
     }
+
+
+    // colorAmbience
+    _paramGroup.add(_colorWarmCool.setup(parentNode,"CoolToWarm"+typeName,ambiType,0,100));
+   _colorWarmCool.getAddress()->addCallback([&](const Value *v){
+        Int * val= (Int *)v;
+        if(val->value != _colorWarmCool){
+           _colorWarmCool.set(val->value);
+        }
+    });
+
+    _colorWarmCool.addListener(&_colorWarmCool,&Parameter<int>::listen);
+    _colorWarmCool.addListener(&_colorAmbi,&ColorAmbience::changeAmbience);
+    _colorAmbi.setup(_nbShapes, _colorWarmCool);
 
     _bDraw = true;
 
@@ -50,7 +64,7 @@ void Shapes::draw()
     {
         for (unsigned i = 0; i < _nbShapes; ++i)
         {
-            ofSetColor(_vecCol[i]);
+            ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
             ofPushMatrix();
             ofTranslate(_vecPos[i]);
             _mesh.draw();
@@ -64,13 +78,15 @@ void Shapes::nbChanged(int &newNb)
     _bDraw = false;
 
     _vecPos.clear();
-    _vecCol.clear();
+ //   _vecCol.clear();
     // Setup positions and colors
     for (unsigned i = 0; i < newNb; ++i)
     {
         _vecPos.push_back(ofVec3f(ofRandom(-300, 300), ofRandom(-300, 300), ofRandom(-300, 300)));
-        _vecCol.push_back(ofColor::fromHsb(255 * i / (float)newNb, 255, 255, 255));
+       // _vecCol.push_back(ofColor::fromHsb(255 * i / (float)newNb, 255, 255, 255));
     }
+
+    _colorAmbi.updateVectorSize(newNb);
 
     _bDraw = true;
 }
