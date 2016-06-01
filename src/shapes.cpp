@@ -1,8 +1,9 @@
 #include "shapes.hpp"
 
 
-Shapes::Shapes(std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh, int ambiType)
-    :_parentNode(parentNode),
+Shapes::Shapes(World3D& world,std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh, int ambiType)
+    : _world(world),
+      _parentNode(parentNode),
       _shapeType(typeName),
       _mesh(mesh)
 {
@@ -21,11 +22,11 @@ Shapes::Shapes(std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh, i
     _nbShapes.addListener(&_nbShapes,&Parameter<int>::listen);
     _nbShapes.addListener(this,&Shapes::nbChanged);
 
-    for (unsigned i = 0; i <  _nbShapes; ++i)
+   /* for (unsigned i = 0; i <  _nbShapes; ++i)
     {
         _vecPos.push_back(ofVec3f(ofRandom(-300, 300), ofRandom(-300, 300), ofRandom(-300, 300)));
        // _vecCol.push_back(ofColor::fromHsb(255 * i / (float) _nbShapes, 255, 255, 255));
-    }
+    }*/
 
 
     // colorAmbience
@@ -52,6 +53,29 @@ Shapes::~Shapes(){
 
 }
 //---------------------------------------------------------
+void Shapes::setup()
+{
+    //Particle3D_ptr parti;
+    int width   = ofGetWidth();
+    int height  = ofGetHeight();
+    for (unsigned i = 0; i <  _nbShapes; ++i)
+    {
+
+        if(_shapeType == "Boxes")
+        {
+            _particles.push_back(
+                        _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                            10)->makeFixed()); // create a node in top left back and fix
+        }
+        else
+            _particles.push_back(
+                        _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                            10)->makeFree()); // create a node in top left back and fix
+          }
+
+}
+
+//---------------------------------------------------------
 void Shapes::update()
 {
 
@@ -60,13 +84,13 @@ void Shapes::update()
 //---------------------------------------------------------
 void Shapes::draw()
 {
-    if(_bDraw)
+    if(_bDraw && _particles.size() == _nbShapes)
     {
         for (unsigned i = 0; i < _nbShapes; ++i)
         {
             ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
             ofPushMatrix();
-            ofTranslate(_vecPos[i]);
+            ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
             _mesh.draw();
             ofPopMatrix();
         }
@@ -77,13 +101,38 @@ void Shapes::nbChanged(int &newNb)
 {
     _bDraw = false;
 
-    _vecPos.clear();
- //   _vecCol.clear();
-    // Setup positions and colors
-    for (unsigned i = 0; i < newNb; ++i)
+    int diff = newNb - _particles.size();
+    int initialSize = _particles.size();
+    if(diff > 0 )
     {
-        _vecPos.push_back(ofVec3f(ofRandom(-300, 300), ofRandom(-300, 300), ofRandom(-300, 300)));
-       // _vecCol.push_back(ofColor::fromHsb(255 * i / (float)newNb, 255, 255, 255));
+
+        // add new particles
+        //Particle3D_ptr parti;
+        int width   = ofGetWidth();
+        int height  = ofGetHeight();
+        for (unsigned i = 0; i <  diff; ++i)
+        {
+            if(_shapeType == "Boxes")
+            {
+                _particles.push_back(
+                            _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                                10)->makeFixed()); // create a node in top left back and fix
+            }
+            else
+                _particles.push_back(
+                            _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                                10)->makeFree()); // create a node in top left back and fix
+
+        }
+    }
+    else if(diff < 0 )
+    {
+        // kill some particles
+        for (unsigned i = initialSize - abs(diff); i <  initialSize; ++i)
+        {
+            _particles[i]->kill();
+            _particles.pop_back();
+        }
     }
 
     _colorAmbi.updateVectorSize(newNb);

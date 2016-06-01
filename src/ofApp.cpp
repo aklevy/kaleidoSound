@@ -2,8 +2,9 @@
 
 ofApp::ofApp():
     _nw(),
-    _boxes(Shapes(_nw.getSceneNode(),"Boxes",ofMesh::box(20, 20, 20))),
-    _balls(Shapes(_nw.getSceneNode(),"Balls",ofMesh::sphere(20)))
+    _world(World3D::create()),
+    _boxes(Shapes(*_world,_nw.getSceneNode(),"Boxes",ofMesh::box(20, 20, 20))),
+    _balls(Shapes(*_world,_nw.getSceneNode(),"Balls",ofMesh::sphere(20)))
 {
 
 }
@@ -19,9 +20,41 @@ void ofApp::setupGui()
     _gui.setup("ShapesGui");
     _gui.setPosition(ofGetWidth()/2 , 0);
 
-    // setup gui for shapes
+    // add Physics' parameters to gui
+    _gui.add(_physicsParam);
+
+    // add shapes' parameters to gui
     _gui.add(_boxes.getParamGroup());
     _gui.add(_balls.getParamGroup());
+
+
+}
+//---------------------------------------------------------------------
+void ofApp::setupWorld()
+{
+    _physicsParam.setName("Physics");
+    // gravity
+    _physicsParam.add(_gravity.setup(_nw.getSceneNode(),"Gravity",1,-10,10));
+    _gravity.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _gravity){
+            _gravity.set(val->value);
+        }
+    });
+
+    _gravity.addListener(&_gravity,&Parameter<float>::listen);
+    _gravity.addListener(this,&ofApp::gravityChanged);
+
+    _world->setGravity(ofVec3f(0, _gravity, 0));
+
+    // set world dimensions, not essential, but speeds up collision
+    int width   = ofGetWidth();
+    int height  = ofGetHeight();
+    _world->setWorldSize(ofVec3f(-width/2, -height, -width/2), ofVec3f(width/2, height, width/2));
+   // _world->setSectorCount(SECTOR_COUNT);
+    //_world->setDrag(0.97f);
+    _world->setDrag(1);		// FIXTHIS
+    _world->enableCollision();
 
 
 }
@@ -35,8 +68,6 @@ void ofApp::setup()
 
     ofSetCoordHandedness(OF_RIGHT_HANDED);
 
-    // Setup Gui communicating using Minuit with i-score
-    setupGui();
 
     // Setup post-processing chain
     post.init(ofGetWidth(), ofGetHeight());
@@ -52,14 +83,22 @@ void ofApp::setup()
     
 
     // Setup light
-	light.setPosition(1000, 1000, 2000);
+    light.setPosition(1000, 1000, 2000);
     
 
     // create our own box mesh as there is a bug with
     // normal scaling and ofDrawBox() at the moment
     //boxMesh = ofMesh::box(20, 20, 20);
 
+    // setup physics
+    setupWorld();
 
+    // create Particles
+    _boxes.setup();
+    _balls.setup();
+
+    // Setup Gui communicating using Minuit with i-score
+    setupGui();
 }
 
 //---------------------------------------------------------------------
@@ -67,6 +106,7 @@ void ofApp::setup()
 void ofApp::update()
 {
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
+    _world->update();
 }
 //---------------------------------------------------------------------
 
@@ -116,4 +156,10 @@ void ofApp::keyPressed(int key)
 {
     unsigned idx = key - '0';
     if (idx < post.size()) post[idx]->setEnabled(!post[idx]->getEnabled());
+}
+//---------------------------------------------------------------------
+
+void ofApp::gravityChanged(float &newVal)
+{
+    _world->setGravity(ofVec3f(0, _gravity, 0));
 }

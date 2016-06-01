@@ -19,15 +19,19 @@
 
 #include "parameter.hpp"
 #include "colorAmbience.hpp"
+#include "MSAPhysics3D.h"
+
+using namespace msa::physics;
 
 class Shapes
 {
 public:
     Shapes() = delete; //forbids default constructor
 
-    Shapes(std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
+    Shapes( World3D& world,std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
     ~Shapes();
 
+    void    setup();
     void    update();
     void    draw();
 
@@ -49,7 +53,8 @@ private:
 
     // Shape type
     ofMesh                          _mesh;
-    vector<ofVec3f>                 _vecPos;
+    vector<Particle3D_ptr>          _particles;
+    //vector<ofVec3f>                 _vecPos;
 
     // Color Ambience
     ColorAmbience                   _colorAmbi;
@@ -57,6 +62,9 @@ private:
     //vector<ofColor>     _vecCol;
 
     bool                _bDraw;
+
+    //physics
+    World3D& _world;
 };
 
 #endif
