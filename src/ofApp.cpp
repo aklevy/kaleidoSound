@@ -17,8 +17,20 @@ ofApp::~ofApp () {
 //---------------------------------------------------------------------
 void ofApp::setupGui()
 {
-    _gui.setup("ShapesGui");
+    _gui.setup("Gui");
     _gui.setPosition(ofGetWidth()/2 , 0);
+
+    // add FX
+    _gui.add(_kSegments.setup(_nw.getSceneNode(),"kSegments",6,0,20));
+    _kSegments.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _kSegments){
+            _kSegments.set(val->value);
+        }
+    });
+
+    _kSegments.addListener(&_kSegments,&Parameter<float>::listen);
+    _kSegments.addListener(this,&ofApp::kaleidoSegmChanged);
 
     // add Physics' parameters to gui
     _gui.add(_physicsParam);
@@ -32,7 +44,7 @@ void ofApp::setupGui()
 //---------------------------------------------------------------------
 void ofApp::setupWorld()
 {
-    _physicsParam.setName("Physics");
+
     // gravity
     _physicsParam.add(_gravity.setup(_nw.getSceneNode(),"Gravity",1,-10,10));
     _gravity.getAddress()->addCallback([&](const Value *v){
@@ -72,9 +84,11 @@ void ofApp::setup()
     // Setup post-processing chain
     post.init(ofGetWidth(), ofGetHeight());
     post.createPass<FxaaPass>()->setEnabled(false);
-    post.createPass<BloomPass>()->setEnabled(false);
+    post.createPass<BloomPass>()->setEnabled(true);
     post.createPass<DofPass>()->setEnabled(false);
-    post.createPass<KaleidoscopePass>()->setEnabled(false);
+    _kaleido = post.createPass<KaleidoscopePass>();
+    _kaleido->setEnabled(true);
+
     post.createPass<NoiseWarpPass>()->setEnabled(false);
     post.createPass<PixelatePass>()->setEnabled(false);
     post.createPass<EdgePass>()->setEnabled(false);
@@ -82,9 +96,22 @@ void ofApp::setup()
     post.createPass<GodRaysPass>()->setEnabled(false);
     
 
+    // setup physics param group
+    _physicsParam.setName("Physics");
+
     // Setup light
     light.setPosition(1000, 1000, 2000);
-    
+
+    _physicsParam.add(_bLight.setup(_nw.getSceneNode(),"Light",false));
+    _bLight.getAddress()->addCallback([&](const Value *v){
+        Bool * val= (Bool *)v;
+        if(val->value != _bLight){
+            _bLight.set(val->value);
+        }
+    });
+
+    _bLight.addListener(&_bLight,&Parameter<bool>::listen);
+
 
     // create our own box mesh as there is a bug with
     // normal scaling and ofDrawBox() at the moment
@@ -113,13 +140,15 @@ void ofApp::update()
 void ofApp::draw()
 {
     // copy enable part of gl state
-    glPushAttrib(GL_ENABLE_BIT);
+    if(_bLight)
+    {
+        glPushAttrib(GL_ENABLE_BIT);
     
-    // setup gl state
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    light.enable();
-    
+        // setup gl state
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        light.enable();
+    }
     // begin scene to post process
     post.begin(cam);
     
@@ -161,5 +190,11 @@ void ofApp::keyPressed(int key)
 
 void ofApp::gravityChanged(float &newVal)
 {
-    _world->setGravity(ofVec3f(0, _gravity, 0));
+    _world->setGravity(ofVec3f(0, newVal, 0));
+}
+//---------------------------------------------------------------------
+
+void ofApp::kaleidoSegmChanged(float &newVal)
+{
+    _kaleido->setSegments(newVal);
 }

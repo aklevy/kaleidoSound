@@ -27,6 +27,7 @@ public:
 
     void keyPressed(int key);
     void gravityChanged(float &newVal);
+    void kaleidoSegmChanged(float &newVal);
     
 private:
 
@@ -37,14 +38,20 @@ private:
     Network             _nw;
 
     // scene stuff
-    ofxPostProcessing   post;
     ofEasyCam           cam;
     ofLight             light;
+
+    // FX
+    ofxPostProcessing   post;
+    shared_ptr<KaleidoscopePass> _kaleido;
+    Parameter<float>    _kSegments;
+
 
     //physics
     World3D_ptr         _world;
     ofParameterGroup    _physicsParam;
     Parameter<float>    _gravity;
+    Parameter<bool>     _bLight;
 
     // Shapes
     Shapes              _boxes;

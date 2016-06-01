@@ -65,12 +65,12 @@ void Shapes::setup()
         {
             _particles.push_back(
                         _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
-                                            10)->makeFixed()); // create a node in top left back and fix
+                                            0)); // create a node in top left back and fix
         }
         else
             _particles.push_back(
                         _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
-                                            10)->makeFree()); // create a node in top left back and fix
+                                            ofRandom(20,35))->makeFree()); // create a node in top left back and fix
           }
 
 }
@@ -116,12 +116,12 @@ void Shapes::nbChanged(int &newNb)
             {
                 _particles.push_back(
                             _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
-                                                10)->makeFixed()); // create a node in top left back and fix
+                                                0)); // create a node in top left back and fix
             }
             else
                 _particles.push_back(
                             _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
-                                                10)->makeFree()); // create a node in top left back and fix
+                                                ofRandom(20,35))->makeFree()); // create a node in top left back and fix
 
         }
     }
