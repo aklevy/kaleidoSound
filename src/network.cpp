@@ -24,7 +24,7 @@ Network::~Network(){
 }
 
 void Network::publication(){
-    auto minuitProtocol = Minuit::create("127.0.0.1", 13579, 9998);
+    auto minuitProtocol = Minuit::create("192.168.10.11", 13579, 9998);
     auto minuitDevice = Device::create(minuitProtocol, "i-score");
 
     while (_simRunning == true)

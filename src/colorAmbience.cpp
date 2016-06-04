@@ -57,7 +57,17 @@ void ColorAmbience::updateVectorSize(int& newVecSize)
 void ColorAmbience::warmCoolAmbiance()
 {
 
-    if(_ambienceType<50) //cool
+    if(_ambienceType<20) // supa cool
+    {
+        for (unsigned i = 0; i <  _sizeVec; ++i)
+        {
+            _colorVec.push_back(ofColor(ofRandom(0,55), // red
+                                        ofRandom(100,255), //green
+                                        ofRandom(200,255) + _ambienceType, // blue
+                                        255));
+        }
+    }
+    else if(_ambienceType<50) //cool
     {
         for (unsigned i = 0; i <  _sizeVec; ++i)
         {
@@ -76,7 +86,7 @@ void ColorAmbience::warmCoolAmbiance()
                                                  (_ambienceType/4) * i / (float)  _sizeVec, // blue
                                                  255));
         }
-    } else
+    } else // supa warm
     {
         for (unsigned i = 0; i <  _sizeVec; ++i)
         {

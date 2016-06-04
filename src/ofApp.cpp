@@ -20,6 +20,18 @@ void ofApp::setupGui()
     _gui.setup("Gui");
     _gui.setPosition(ofGetWidth()/2 , 0);
 
+    // add reset button
+    _gui.add(_reset.setup(_nw.getSceneNode(),"reset",false));
+    _reset.getAddress()->addCallback([&](const Value *v){
+        Bool * val= (Bool *)v;
+        if(val->value != _reset){
+            _reset.set(val->value);
+        }
+    });
+
+    _reset.addListener(&_reset,&Parameter<bool>::listen);
+    _reset.addListener(this,&ofApp::reset);
+
     // add FX
     _gui.add(_kSegments.setup(_nw.getSceneNode(),"kSegments",6,0,20));
     _kSegments.getAddress()->addCallback([&](const Value *v){
@@ -129,6 +141,18 @@ void ofApp::setup()
 }
 
 //---------------------------------------------------------------------
+void ofApp::reset(bool& newVal)
+{
+   if(newVal)
+   {
+       _boxes.reset();
+        _balls.reset();
+   }
+
+    _reset.set(false);
+}
+
+//---------------------------------------------------------------------
 
 void ofApp::update()
 {
@@ -156,7 +180,7 @@ void ofApp::draw()
     _boxes.draw();
     _balls.draw();
     
-    ofDrawAxis(100);
+   // ofDrawAxis(100);
     
     // end scene and draw
     post.end();
@@ -183,6 +207,10 @@ void ofApp::draw()
 
 void ofApp::keyPressed(int key)
 {
+    if(key == ' ')
+    {
+        ofToggleFullscreen();
+    }
     unsigned idx = key - '0';
     if (idx < post.size()) post[idx]->setEnabled(!post[idx]->getEnabled());
 }

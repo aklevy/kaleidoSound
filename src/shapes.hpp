@@ -34,6 +34,7 @@ public:
     void    setup();
     void    update();
     void    draw();
+    void    reset();
 
     void    nbChanged(int &newNb);
 

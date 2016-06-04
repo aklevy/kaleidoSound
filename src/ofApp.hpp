@@ -20,7 +20,7 @@ public:
     void setupGui();
     void setupWorld();
     void setup();
-
+    void reset(bool &newVal);
 
     void update();
     void draw();
@@ -33,7 +33,7 @@ private:
 
     // gui
     ofxPanel            _gui;
-
+    Parameter<bool>     _reset;
     // Network for communication
     Network             _nw;
 

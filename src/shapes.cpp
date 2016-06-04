@@ -97,6 +97,37 @@ void Shapes::draw()
     }
 }
 //---------------------------------------------------------
+void Shapes::reset()
+{
+    // kill all the particles
+    for (auto parti : _particles)
+    {
+
+        parti->kill();
+    }
+    // clear vector
+    _particles.clear();
+
+    //add new particles
+    int width   = ofGetWidth();
+    int height  = ofGetHeight();
+    for (unsigned i = 0; i <  _nbShapes; ++i)
+    {
+        if(_shapeType == "Boxes")
+        {
+            _particles.push_back(
+                        _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                            0)); // create a node in top left back and fix
+        }
+        else
+            _particles.push_back(
+                        _world.makeParticle(ofVec3f(ofRandom(-width/2, width/2), ofRandom(-height, height), ofRandom(-width/2,width/2)),
+                                            ofRandom(20,35))->makeFree()); // create a node in top left back and fix
+
+    }
+}
+
+//---------------------------------------------------------
 void Shapes::nbChanged(int &newNb)
 {
     _bDraw = false;
