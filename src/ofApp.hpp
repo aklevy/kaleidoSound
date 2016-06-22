@@ -19,6 +19,8 @@ public:
 
     void setupGui();
     void setupWorld();
+    void setupCamera();
+
     void setup();
     void reset(bool &newVal);
 
@@ -26,9 +28,15 @@ public:
     void draw();
 
     void keyPressed(int key);
+
+    // parameters' listeners
     void gravityChanged(float &newVal);
     void kaleidoSegmChanged(float &newVal);
-    
+    void bounceChanged(float &newBounce);
+    void moveCamDx(float &newDx);
+    void moveCamDy(float &newDy);
+    void moveCamDz(float &newDz);
+
 private:
 
     // gui
@@ -39,6 +47,11 @@ private:
 
     // scene stuff
     ofEasyCam           cam;
+    ofParameterGroup    _camParam;
+    Parameter<float>    _camDx;
+    Parameter<float>    _camDy;
+    Parameter<float>    _camDz;
+
     ofLight             light;
 
     // FX
@@ -52,6 +65,7 @@ private:
     ofParameterGroup    _physicsParam;
     Parameter<float>    _gravity;
     Parameter<bool>     _bLight;
+    Parameter<float>    _particlesBounce;
 
     // Shapes
     Shapes              _boxes;

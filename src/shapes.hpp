@@ -37,7 +37,6 @@ public:
     void    reset();
 
     void    nbChanged(int &newNb);
-
     ofParameterGroup getParamGroup(){return _paramGroup;}
 
 private:
@@ -66,6 +65,7 @@ private:
 
     //physics
     World3D& _world;
+
 };
 
 #endif

@@ -44,8 +44,13 @@ void ofApp::setupGui()
     _kSegments.addListener(&_kSegments,&Parameter<float>::listen);
     _kSegments.addListener(this,&ofApp::kaleidoSegmChanged);
 
+
     // add Physics' parameters to gui
     _gui.add(_physicsParam);
+
+    // add Camera's parameters to gui
+    _gui.add(_camParam);
+
 
     // add shapes' parameters to gui
     _gui.add(_boxes.getParamGroup());
@@ -54,11 +59,53 @@ void ofApp::setupGui()
 
 }
 //---------------------------------------------------------------------
+void ofApp::setupCamera()
+{
+    // add camera dx
+    _camParam.setName("Camera");
+    _camParam.add(_camDx.setup(_nw.getSceneNode(),"camDx",0,-1.0,1.0));
+    _camDx.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _camDx){
+           _camDx.set(val->value);
+        }
+    });
+    _camDx.addListener(&_camDx,&Parameter<float>::listen);
+    _camDx.addListener(this,&ofApp::moveCamDx);
+
+    // add camera dy
+    _camParam.add(_camDy.setup(_nw.getSceneNode(),"camDy",0,-50,50));
+    _camDy.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _camDy){
+           _camDy.set(val->value);
+        }
+    });
+
+    _camDy.addListener(&_camDy,&Parameter<float>::listen);
+    _camDy.addListener(this,&ofApp::moveCamDy);
+
+    // add camera dz
+    _camParam.add(_camDz.setup(_nw.getSceneNode(),"camDz",0,-100.0,100.0));
+    _camDz.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _camDz){
+           _camDz.set(val->value);
+        }
+    });
+
+    _camDz.addListener(&_camDz,&Parameter<float>::listen);
+    _camDz.addListener(this,&ofApp::moveCamDz);
+
+
+}
+
+//---------------------------------------------------------------------
 void ofApp::setupWorld()
 {
 
     // gravity
-    _physicsParam.add(_gravity.setup(_nw.getSceneNode(),"Gravity",1,-10,10));
+    _physicsParam.add(_gravity.setup(_nw.getSceneNode(),"Gravity",0.5,-10,10));
     _gravity.getAddress()->addCallback([&](const Value *v){
         Float * val= (Float *)v;
         if(val->value != _gravity){
@@ -69,6 +116,20 @@ void ofApp::setupWorld()
     _gravity.addListener(&_gravity,&Parameter<float>::listen);
     _gravity.addListener(this,&ofApp::gravityChanged);
 
+
+    // particles bounce parameter
+    _physicsParam.add(_particlesBounce.setup(_nw.getSceneNode(),"particlesBounce",1,0,3));
+    _particlesBounce.getAddress()->addCallback([&](const Value *v){
+        Float * val= (Float *)v;
+        if(val->value != _particlesBounce){
+            _particlesBounce.set(val->value);
+        }
+    });
+
+   _particlesBounce.addListener(&_particlesBounce,&Parameter<float>::listen);
+    _particlesBounce.addListener(this,&ofApp::bounceChanged);
+
+
     _world->setGravity(ofVec3f(0, _gravity, 0));
 
     // set world dimensions, not essential, but speeds up collision
@@ -77,6 +138,7 @@ void ofApp::setupWorld()
     _world->setWorldSize(ofVec3f(-width/2, -height, -width/2), ofVec3f(width/2, height, width/2));
    // _world->setSectorCount(SECTOR_COUNT);
     //_world->setDrag(0.97f);
+
     _world->setDrag(1);		// FIXTHIS
     _world->enableCollision();
 
@@ -89,17 +151,16 @@ void ofApp::setup()
     ofBackground(0);
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
-
-    ofSetCoordHandedness(OF_RIGHT_HANDED);
+   // ofSetCoordHandedness(OF_RIGHT_HANDED);
 
 
     // Setup post-processing chain
     post.init(ofGetWidth(), ofGetHeight());
     post.createPass<FxaaPass>()->setEnabled(false);
-    post.createPass<BloomPass>()->setEnabled(true);
-    post.createPass<DofPass>()->setEnabled(false);
+    post.createPass<BloomPass>()->setEnabled(false);
+    post.createPass<DofPass>()->setEnabled(true);
     _kaleido = post.createPass<KaleidoscopePass>();
-    _kaleido->setEnabled(true);
+    _kaleido->setEnabled(false);
 
     post.createPass<NoiseWarpPass>()->setEnabled(false);
     post.createPass<PixelatePass>()->setEnabled(false);
@@ -132,6 +193,10 @@ void ofApp::setup()
     // setup physics
     setupWorld();
 
+    // setup camera params
+    setupCamera();
+    cam.disableMouseInput();
+
     // create Particles
     _boxes.setup();
     _balls.setup();
@@ -149,7 +214,9 @@ void ofApp::reset(bool& newVal)
         _balls.reset();
    }
 
+   cam.setPosition(0,0,0);
     _reset.set(false);
+
 }
 
 //---------------------------------------------------------------------
@@ -175,7 +242,7 @@ void ofApp::draw()
     }
     // begin scene to post process
     post.begin(cam);
-    
+
     // draw Shapes
     _boxes.draw();
     _balls.draw();
@@ -225,4 +292,36 @@ void ofApp::gravityChanged(float &newVal)
 void ofApp::kaleidoSegmChanged(float &newVal)
 {
     _kaleido->setSegments(newVal);
+}
+//---------------------------------------------------------
+void ofApp::bounceChanged(float &newBounce)
+{
+    for (auto p : _world->getParticles())
+    {
+        p->setBounce(newBounce);
+        //p->setDrag(0);
+    }
+
+}
+//---------------------------------------------------------
+void ofApp::moveCamDx(float &newDx)
+{
+    ofVec3f newpos = cam.getPosition() + ofVec3f(newDx,0,0);
+    cam.setPosition(newpos);
+
+}
+//---------------------------------------------------------
+void ofApp::moveCamDy(float &newDy)
+{
+    ofVec3f newpos = cam.getPosition() + ofVec3f(0,newDy,0);
+    cam.setPosition(newpos);
+
+}
+//---------------------------------------------------------
+void ofApp::moveCamDz(float &newDz)
+{
+    ofLog() << "cam position "<<cam.getPosition();
+    ofVec3f newpos = cam.getPosition() + ofVec3f(0,0,newDz);
+  //  cam.setPosition(newpos);
+    cam.move(ofVec3f(0,0,newDz));
 }

@@ -42,6 +42,8 @@ Shapes::Shapes(World3D& world,std::shared_ptr<Node> parentNode, string typeName,
     _colorWarmCool.addListener(&_colorAmbi,&ColorAmbience::changeAmbience);
     _colorAmbi.setup(_nbShapes, _colorWarmCool);
 
+
+
     _bDraw = true;
 
 
@@ -139,6 +141,7 @@ void Shapes::nbChanged(int &newNb)
 
         // add new particles
         //Particle3D_ptr parti;
+
         int width   = ofGetWidth();
         int height  = ofGetHeight();
         for (unsigned i = 0; i <  diff; ++i)
@@ -170,3 +173,4 @@ void Shapes::nbChanged(int &newNb)
 
     _bDraw = true;
 }
+
