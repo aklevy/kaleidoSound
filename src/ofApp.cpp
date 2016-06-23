@@ -3,8 +3,8 @@
 ofApp::ofApp():
     _nw(),
     _world(World3D::create()),
-    _boxes(Shapes(*_world,_nw.getSceneNode(),"Boxes",ofMesh::box(20, 20, 20))),
-    _balls(Shapes(*_world,_nw.getSceneNode(),"Balls",ofMesh::sphere(20)))
+    _boxes(Shapes(*_world,cam ,_nw.getSceneNode(),"Boxes",ofMesh::box(20, 20, 20))),
+    _balls(Shapes(*_world,cam ,_nw.getSceneNode(),"Balls",ofMesh::sphere(20)))
 {
 
 }
@@ -118,7 +118,7 @@ void ofApp::setupWorld()
 
 
     // particles bounce parameter
-    _physicsParam.add(_particlesBounce.setup(_nw.getSceneNode(),"particlesBounce",1,0,3));
+    _physicsParam.add(_particlesBounce.setup(_nw.getSceneNode(),"particlesBounce",1,0,1));
     _particlesBounce.getAddress()->addCallback([&](const Value *v){
         Float * val= (Float *)v;
         if(val->value != _particlesBounce){
@@ -141,7 +141,8 @@ void ofApp::setupWorld()
 
     _world->setDrag(1);		// FIXTHIS
     _world->enableCollision();
-
+    _world->setTimeStep(1.);
+    _world->setNumIterations(10.);
 
 }
 
@@ -149,7 +150,7 @@ void ofApp::setupWorld()
 void ofApp::setup()
 {
     ofBackground(0);
-    ofSetFrameRate(60);
+    ofSetFrameRate(30);
     ofSetVerticalSync(true);
    // ofSetCoordHandedness(OF_RIGHT_HANDED);
 
@@ -171,7 +172,6 @@ void ofApp::setup()
 
     // setup physics param group
     _physicsParam.setName("Physics");
-
     // Setup light
     light.setPosition(1000, 1000, 2000);
 
@@ -195,7 +195,8 @@ void ofApp::setup()
 
     // setup camera params
     setupCamera();
-    cam.disableMouseInput();
+
+   // cam.disableMouseInput();
 
     // create Particles
     _boxes.setup();
@@ -225,6 +226,8 @@ void ofApp::update()
 {
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
     _world->update();
+   // _boxes.update();
+   // _balls.update();
 }
 //---------------------------------------------------------------------
 
@@ -244,8 +247,8 @@ void ofApp::draw()
     post.begin(cam);
 
     // draw Shapes
-    _boxes.draw();
-    _balls.draw();
+   _boxes.draw();
+   _balls.draw();
     
    // ofDrawAxis(100);
     
@@ -253,13 +256,14 @@ void ofApp::draw()
     post.end();
     
     // set gl state back to original
-    glPopAttrib();
+    if(_bLight)
+        glPopAttrib();
     
     // draw GUI
     _gui.draw();
-
+//ofDrawBitmapString("position"+mousepos,10,20);
     // draw help
-    ofSetColor(0, 255, 255);
+   /* ofSetColor(0, 255, 255);
     ofDrawBitmapString("Number keys toggle effects, mouse rotates scene", 10, 20);
     for (unsigned i = 0; i < post.size(); ++i)
     {
@@ -268,7 +272,7 @@ void ofApp::draw()
         ostringstream oss;
         oss << i << ": " << post[i]->getName() << (post[i]->getEnabled()?" (on)":" (off)");
         ofDrawBitmapString(oss.str(), 10, 20 * (i + 2));
-    }
+    }*/
 }
 //---------------------------------------------------------------------
 
@@ -281,6 +285,12 @@ void ofApp::keyPressed(int key)
     unsigned idx = key - '0';
     if (idx < post.size()) post[idx]->setEnabled(!post[idx]->getEnabled());
 }
+//---------------------------------------------------------------------
+
+void ofApp::mousePressed(int x, int y, int button)
+{
+}
+
 //---------------------------------------------------------------------
 
 void ofApp::gravityChanged(float &newVal)
@@ -320,7 +330,6 @@ void ofApp::moveCamDy(float &newDy)
 //---------------------------------------------------------
 void ofApp::moveCamDz(float &newDz)
 {
-    ofLog() << "cam position "<<cam.getPosition();
     ofVec3f newpos = cam.getPosition() + ofVec3f(0,0,newDz);
   //  cam.setPosition(newpos);
     cam.move(ofVec3f(0,0,newDz));

@@ -28,7 +28,7 @@ class Shapes
 public:
     Shapes() = delete; //forbids default constructor
 
-    Shapes( World3D& world,std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
+    Shapes( World3D& world,ofEasyCam& cam,std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
     ~Shapes();
 
     void    setup();
@@ -42,7 +42,6 @@ public:
 private:
     // Minuit parent Node
     std::shared_ptr<Node>           _parentNode;
-
     // Shape type name
     std::string                     _shapeType;
 
@@ -62,9 +61,10 @@ private:
     //vector<ofColor>     _vecCol;
 
     bool                _bDraw;
-
     //physics
     World3D& _world;
+    ofEasyCam&                       _cam;
+
 
 };
 

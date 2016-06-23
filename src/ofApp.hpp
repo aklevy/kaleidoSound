@@ -28,7 +28,7 @@ public:
     void draw();
 
     void keyPressed(int key);
-
+    void mousePressed(int x, int y, int button);
     // parameters' listeners
     void gravityChanged(float &newVal);
     void kaleidoSegmChanged(float &newVal);
@@ -51,7 +51,7 @@ private:
     Parameter<float>    _camDx;
     Parameter<float>    _camDy;
     Parameter<float>    _camDz;
-
+ofVec2f mousepos;
     ofLight             light;
 
     // FX
