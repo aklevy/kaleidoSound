@@ -5,7 +5,7 @@
 #include "ofxGui.h"
 #include "MSAPhysics3D.h"
 
-#include "network.hpp"
+#include "ofxOssia.hpp"
 #include "shapes.hpp"
 //#include "parameter.hpp"
 using namespace msa::physics;
@@ -41,31 +41,31 @@ private:
 
     // gui
     ofxPanel            _gui;
-    Parameter<bool>     _reset;
+    ossia::Parameter<bool>     _reset;
     // Network for communication
     Network             _nw;
 
     // scene stuff
     ofEasyCam           cam;
     ofParameterGroup    _camParam;
-    Parameter<float>    _camDx;
-    Parameter<float>    _camDy;
-    Parameter<float>    _camDz;
+    ossia::Parameter<float>    _camDx;
+    ossia::Parameter<float>    _camDy;
+    ossia::Parameter<float>    _camDz;
 ofVec2f mousepos;
     ofLight             light;
 
     // FX
     ofxPostProcessing   post;
     shared_ptr<KaleidoscopePass> _kaleido;
-    Parameter<float>    _kSegments;
+    ossia::Parameter<float>    _kSegments;
 
 
     //physics
     World3D_ptr         _world;
     ofParameterGroup    _physicsParam;
-    Parameter<float>    _gravity;
-    Parameter<bool>     _bLight;
-    Parameter<float>    _particlesBounce;
+    ossia::Parameter<float>    _gravity;
+    ossia::Parameter<bool>     _bLight;
+    ossia::Parameter<float>    _particlesBounce;
 
     // Shapes
     Shapes              _boxes;

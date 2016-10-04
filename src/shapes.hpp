@@ -12,12 +12,12 @@
 #undef False
 #endif
 
-#include "Network/Address.h"
+/*#include "Network/Address.h"
 #include "Network/Device.h"
 #include "Network/Protocol/Local.h"
 #include "Network/Protocol/Minuit.h"
-
-#include "parameter.hpp"
+*/
+#include "ofxOssia.hpp"
 #include "colorAmbience.hpp"
 #include "MSAPhysics3D.h"
 
@@ -28,7 +28,7 @@ class Shapes
 public:
     Shapes() = delete; //forbids default constructor
 
-    Shapes( World3D& world,ofEasyCam& cam,std::shared_ptr<Node> parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
+    Shapes( World3D& world,ofEasyCam& cam,ossia::net::node_base& parentNode, std::string typeName, ofMesh mesh, int ambiType = 0);
     ~Shapes();
 
     void    setup();
@@ -41,14 +41,14 @@ public:
 
 private:
     // Minuit parent Node
-    std::shared_ptr<Node>           _parentNode;
+    ossia::net::node_base&          _parentNode;
     // Shape type name
     std::string                     _shapeType;
 
     // Parameter group to be exposed in ofApp's gui
     ofParameterGroup                _paramGroup;
     // Shapes number
-    Parameter<int>                  _nbShapes;
+    ossia::Parameter<int>           _nbShapes;
 
     // Shape type
     ofMesh                          _mesh;
@@ -57,7 +57,7 @@ private:
 
     // Color Ambience
     ColorAmbience                   _colorAmbi;
-    Parameter<int>                  _colorWarmCool;
+    ossia::Parameter<int>           _colorWarmCool;
     //vector<ofColor>     _vecCol;
 
     bool                _bDraw;

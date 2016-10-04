@@ -1,7 +1,7 @@
 #include "shapes.hpp"
 
 
-Shapes::Shapes(World3D& world,ofEasyCam& cam,std::shared_ptr<Node> parentNode, string typeName, ofMesh mesh, int ambiType)
+Shapes::Shapes(World3D& world,ofEasyCam& cam,ossia::net::node_base& parentNode, string typeName, ofMesh mesh, int ambiType)
     : _world(world),
       _cam(cam),
       _parentNode(parentNode),
@@ -13,17 +13,9 @@ Shapes::Shapes(World3D& world,ofEasyCam& cam,std::shared_ptr<Node> parentNode, s
 
     // number of Shapes
     _paramGroup.add(_nbShapes.setup(parentNode,"Nb"+typeName,100,0,500));
-    _nbShapes.getAddress()->addCallback([&](const Value *v){
-        Int * val= (Int *)v;
-        if(val->value != _nbShapes){
-            _nbShapes.set(val->value);
-        }
-    });
-
-    _nbShapes.addListener(&_nbShapes,&Parameter<int>::listen);
     _nbShapes.addListener(this,&Shapes::nbChanged);
 
-   /* for (unsigned i = 0; i <  _nbShapes; ++i)
+    /* for (unsigned i = 0; i <  _nbShapes; ++i)
     {
         _vecPos.push_back(ofVec3f(ofRandom(-300, 300), ofRandom(-300, 300), ofRandom(-300, 300)));
        // _vecCol.push_back(ofColor::fromHsb(255 * i / (float) _nbShapes, 255, 255, 255));
@@ -32,26 +24,16 @@ Shapes::Shapes(World3D& world,ofEasyCam& cam,std::shared_ptr<Node> parentNode, s
 
     // colorAmbience
     _paramGroup.add(_colorWarmCool.setup(parentNode,"CoolToWarm"+typeName,ambiType,0,100));
-   _colorWarmCool.getAddress()->addCallback([&](const Value *v){
-        Int * val= (Int *)v;
-        if(val->value != _colorWarmCool){
-           _colorWarmCool.set(val->value);
-        }
-    });
-
-    _colorWarmCool.addListener(&_colorWarmCool,&Parameter<int>::listen);
     _colorWarmCool.addListener(&_colorAmbi,&ColorAmbience::changeAmbience);
     _colorAmbi.setup(_nbShapes, _colorWarmCool);
-
-
 
     _bDraw = true;
 
 
 }
 //---------------------------------------------------------
-Shapes::~Shapes(){
-    _nbShapes.removeListener(&_nbShapes,&Parameter<int>::listen);
+Shapes::~Shapes()
+{
     _nbShapes.removeListener(this,&Shapes::nbChanged);
 
 }
@@ -85,7 +67,7 @@ void Shapes::setup()
 //---------------------------------------------------------
 void Shapes::update()
 {
-/*int count = 0;
+    /*int count = 0;
     if(_bDraw && !_particles.empty() &&_particles.size() == _nbShapes)
     {
 
@@ -112,45 +94,45 @@ void Shapes::draw()
 {
     if(_bDraw && _particles.size() == _nbShapes)
     {
-         ofRectangle screen(0,0,ofGetWidth(),ofGetHeight());
-         if(_shapeType == "Boxes")
-         {
-             for (unsigned i = 0; i < _nbShapes; ++i)
-             {
-                 if( screen.inside(_cam.worldToScreen(_particles[i]->getPosition())))
-                 {
-                     ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
-                     ofPushMatrix();
-                     ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
-                     ofDrawBox(20,20,20);
-                     ofPopMatrix();
+        ofRectangle screen(0,0,ofGetWidth(),ofGetHeight());
+        if(_shapeType == "Boxes")
+        {
+            for (unsigned i = 0; i < _nbShapes; ++i)
+            {
+                if( screen.inside(_cam.worldToScreen(_particles[i]->getPosition())))
+                {
+                    ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
+                    ofPushMatrix();
+                    ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
+                    ofDrawBox(20,20,20);
+                    ofPopMatrix();
 
-     /*
-                     ofPushMatrix();
-                     ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
-                     _mesh.draw();
-                     ofPopMatrix();*/
-                 }
-
-             }
-         }
-         else
-         {
-             for (unsigned i = 0; i < _nbShapes; ++i)
-             {
-                 if( screen.inside(_cam.worldToScreen(_particles[i]->getPosition())))
-                 {
-                     ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
-                     ofDrawCircle(_particles[i]->getPosition(),20.);
-     /*
+                    /*
                      ofPushMatrix();
                      ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
                      _mesh.draw();
                      ofPopMatrix();*/
-                 }
+                }
 
-             }
-         }
+            }
+        }
+        else
+        {
+            for (unsigned i = 0; i < _nbShapes; ++i)
+            {
+                if( screen.inside(_cam.worldToScreen(_particles[i]->getPosition())))
+                {
+                    ofSetColor(_colorAmbi.getColor(i));//_vecCol[i]);
+                    ofDrawCircle(_particles[i]->getPosition(),20.);
+                    /*
+                     ofPushMatrix();
+                     ofTranslate(_particles[i]->getPosition());//_vecPos[i]);
+                     _mesh.draw();
+                     ofPopMatrix();*/
+                }
+
+            }
+        }
 
     }
 }

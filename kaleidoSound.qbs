@@ -15,16 +15,21 @@ Project{
             "src/main.cpp",
             "src/ofApp.cpp",
             "src/ofApp.hpp",
-            "src/parameter.hpp",
+         /*   "src/parameter.hpp",
             "src/network.cpp",
             "src/network.hpp",
-            "src/shapes.cpp",
-            "src/shapes.hpp"
+           */ "src/shapes.cpp",
+            "src/shapes.hpp",
+            "src/colorAmbience.cpp",
+            "src/colorAmbience.hpp"
         ]
 
         of.addons: [
             'ofxPostProcessing',
-            'ofxGui'
+            'ofxGui',
+            'ofxMSACore',
+            'ofxMSAPhysics',
+            'ofxOSSIA'
         ]
 
         // additional flags for the project. the of module sets some
@@ -33,21 +38,20 @@ Project{
         of.pkgConfigs: []       // list of additional system pkgs to include
 
         of.cFlags: []           // flags passed to the c compiler
-        of.cxxFlags: ["-std=c++11"]         // flags passed to the c++ compiler
+        of.cxxFlags: ["-std=c++14"]         // flags passed to the c++ compiler
         of.linkerFlags: []      // flags passed to the linker
         of.defines: []          // defines are passed as -D to the compiler
                                 // and can be checked with #ifdef or #if in the code
         of.includePaths: [
-            ".",
-            "/opt/API/Headers"
+            "."
 
         ]     // include search paths
         // other flags can be set through the cpp module: http://doc.qt.io/qbs/cpp-module.html
         // eg: this will enable ccache when compiling
         //
         // cpp.compilerWrapper: 'ccache'
-        cpp.libraryPaths: ["/opt/build-api/Implementations/Jamoma"]
-        cpp.dynamicLibraries: "APIJamoma"
+        cpp.libraryPaths: []
+        cpp.dynamicLibraries:[]
 
         Depends{
             name: "cpp"
